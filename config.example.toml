@@ -1,0 +1,200 @@
+# railgun-broadcaster-monitor – example configuration
+#
+# Everything in here is PUBLIC data. The dashboard never needs (and has no field for)
+# a mnemonic, private key or viewing key. Do not point it at the broadcaster's
+# config.yaml – copy the public bits you need into this file instead.
+
+[broadcaster]
+name = "my-broadcaster"
+# EVM gas wallet (same address on all chains)
+gas_wallet = "0x1111111111111111111111111111111111111111"
+# Broadcaster 0zk address – used to find our own offers on Waku
+railgun_address = "0zk1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj7m8ay"
+
+[source]
+# stdin    : `docker logs -f railgun-broadcaster 2>&1 | rbm run -c rbm.toml`
+# command  : rbm spawns `command` itself and restarts it (with --since) when it exits
+# journald : rbm follows `journalctl -f -o json <journald_match>` and resumes from its cursor
+#            (requires the broadcaster container to use the journald logging driver)
+# none     : no live logs (dashboard + enrichment only)
+kind = "journald"
+journald_match = ["CONTAINER_NAME=railgun-broadcaster"]
+# command = ["docker", "logs", "-f", "--since", "{since}", "railgun-broadcaster"]
+
+[web]
+# Keep it on loopback and use `ssh -L 8080:localhost:8080 <host>`.
+bind = "127.0.0.1:8080"
+# basic_auth = "user:password"   # or env RBM_BASIC_AUTH; required for non-loopback binds
+
+[storage]
+# Relative to the working directory. deploy/install.sh sets /var/lib/rbm/rbm.sqlite,
+# the Docker image expects /data/rbm.sqlite.
+path = "rbm.sqlite"
+raw_events_days = 14
+fee_history_days = 7
+market_history_days = 365
+
+[waku]
+enabled = true
+max_peers = 6
+sample_secs = 600        # market summary per chain/token
+fee_sample_secs = 1800   # every broadcaster's rate (history)
+pool_factor = 1.05       # random-selection pool (few wallets use it; Railway/Terminal pick the cheapest)
+# Wallets only consider offers within −10 % / +30 % of the average fee of these trusted
+# signers (Railway remote config `trustedFeeSigner`). Defaults to the list of 2026-10-19.
+# trusted_fee_signers = ["0zk1…"]
+trusted_fee_lower = 0.10
+trusted_fee_upper = 0.30
+
+[health]
+fee_publish_warn_secs = 180
+fee_publish_stale_secs = 600
+# container_inspect = ["docker", "inspect", "railgun-broadcaster"]  # needs docker access (root-equivalent)
+balance_poll_secs = 300
+price_poll_secs = 300
+
+[rpc]
+timeout_secs = 10
+cooldown_secs = 60
+
+# ---------------------------------------------------------------- Ethereum
+[[chain]]
+id = 1
+name = "Ethereum"
+native_symbol = "ETH"
+explorer_tx = "https://etherscan.io/tx/"
+explorer_address = "https://etherscan.io/address/"
+# 1rpc.io hits usage limits often; api.zan.top blocks eth_call without an account.
+rpcs = ["https://ethereum-rpc.publicnode.com", "https://eth.drpc.org"]
+relay_adapt = ["0xAc9f360Ae85469B27aEDdEaFC579Ef2d052aD405"]
+fee_bonus = 0.05
+native_usd_feed = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419" # Chainlink ETH/USD
+low_balance = 0.02
+
+[[chain.token]]
+address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+symbol = "WETH"
+decimals = 18
+[[chain.token]]
+address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+symbol = "USDC"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+symbol = "USDT"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+symbol = "DAI"
+decimals = 18
+stable = true
+
+# ---------------------------------------------------------------- BNB Smart Chain
+[[chain]]
+id = 56
+name = "BSC"
+native_symbol = "BNB"
+explorer_tx = "https://bscscan.com/tx/"
+explorer_address = "https://bscscan.com/address/"
+rpcs = ["https://bsc-rpc.publicnode.com", "https://bsc.drpc.org"]
+relay_adapt = ["0xF82d00fC51F730F42A00F85E74895a2849ffF2Dd"]
+fee_bonus = 0.25
+native_usd_feed = "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE" # Chainlink BNB/USD
+low_balance = 0.01
+
+[[chain.token]]
+address = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+symbol = "WBNB"
+decimals = 18
+[[chain.token]]
+address = "0x55d398326f99059fF775485246999027B3197955"
+symbol = "USDT"
+decimals = 18
+stable = true
+[[chain.token]]
+address = "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"
+symbol = "USDC"
+decimals = 18
+stable = true
+
+# ---------------------------------------------------------------- Polygon
+[[chain]]
+id = 137
+name = "Polygon"
+native_symbol = "POL"
+explorer_tx = "https://polygonscan.com/tx/"
+explorer_address = "https://polygonscan.com/address/"
+rpcs = ["https://polygon-bor-rpc.publicnode.com", "https://polygon.drpc.org"]
+relay_adapt = ["0xF82d00fC51F730F42A00F85E74895a2849ffF2Dd"]
+fee_bonus = 0.048
+native_usd_feed = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0" # Chainlink MATIC(POL)/USD
+low_balance = 20
+
+[[chain.token]]
+address = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"
+symbol = "WPOL"
+decimals = 18
+[[chain.token]]
+address = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+symbol = "USDT"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+symbol = "USDC"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+symbol = "USDC.e"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"
+symbol = "DAI"
+decimals = 18
+stable = true
+[[chain.token]]
+address = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
+symbol = "WETH"
+decimals = 18
+
+# ---------------------------------------------------------------- Arbitrum
+[[chain]]
+id = 42161
+name = "Arbitrum"
+native_symbol = "ETH"
+explorer_tx = "https://arbiscan.io/tx/"
+explorer_address = "https://arbiscan.io/address/"
+rpcs = ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"]
+relay_adapt = ["0xB4F2d77bD12c6b548Ae398244d7FAD4ABCE4D89b"]
+fee_bonus = 0.02
+native_usd_feed = "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612" # Chainlink ETH/USD
+low_balance = 0.005
+
+[[chain.token]]
+address = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+symbol = "WETH"
+decimals = 18
+[[chain.token]]
+address = "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+symbol = "USDT"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+symbol = "USDC"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+symbol = "USDC.e"
+decimals = 6
+stable = true
+[[chain.token]]
+address = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+symbol = "DAI"
+decimals = 18
+stable = true

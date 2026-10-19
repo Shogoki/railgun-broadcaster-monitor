@@ -1,0 +1,59 @@
+# systemd unit for rbm (railgun-broadcaster-monitor), journald source.
+#
+#   sudo useradd --system --home /var/lib/rbm --shell /usr/sbin/nologin rbm
+#   sudo install -m 0755 rbm /usr/local/bin/rbm
+#   sudo install -d -m 0755 /etc/rbm && sudo install -m 0644 rbm.toml /etc/rbm/rbm.toml
+#   sudo install -m 0644 rbm.service /etc/systemd/system/rbm.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now rbm
+#
+# View the UI through an SSH tunnel: ssh -L 8080:localhost:8080 <host>
+
+[Unit]
+Description=RAILGUN broadcaster monitor (read-only dashboard)
+Documentation=https://github.com/Shogoki/railgun-broadcaster-monitor
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rbm
+Group=rbm
+# Read the broadcaster's container logs from the journal (journald logging driver).
+SupplementaryGroups=systemd-journal
+ExecStart=/usr/local/bin/rbm -c /etc/rbm/rbm.toml run
+Restart=always
+RestartSec=5
+StateDirectory=rbm
+StateDirectoryMode=0750
+
+# Resource budget (target: <= 30 MB RSS, ~0 % idle CPU)
+MemoryMax=128M
+CPUQuota=50%
+Nice=10
+
+# Hardening. rbm is read-only by design; make it impossible for it to see secrets.
+InaccessiblePaths=-/opt/railgun/src/config.yaml -/opt/railgun/monitor.env -/opt/railgun/src/db -/root
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

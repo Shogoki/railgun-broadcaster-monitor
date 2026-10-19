@@ -1,0 +1,6 @@
+2026-10-17T21:14:56.184940Z DEBUG fees{chain_id=137}: our fees payload=Ok("{\"fees\":{\"0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270\":\"0xe8b3e728c9c0000\",\"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\":\"0x17f4b\",\"0xc2132d05d31c914a87c6611c10748aeb04b58e8f\":\"0x17f40\"},\"feeExpiration\":1792271996184,\"feesID\":\"vd3do3cpmhnhysue\",\"railgunAddress\":\"0zk1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj7m8ay\",\"availableWallets\":1,\"version\":\"8.3.0\",\"relayAdapt\":\"0xF82d00fC51F730F42A00F85E74895a2849ffF2Dd\",\"requiredPOIListKeys\":[\"efc6ddb59c098a13fb2b618fdae94c1c3a807abc8fb1837c93620c9143ee9e88\"],\"reliability\":0.99,\"identifier\":\"rust-broadcaster\"}")
+2026-10-17T21:14:57.002113Z  WARN service{chain_id=137}:sync_live: failed to fetch logs, retrying... err=server returned an error response: error code -32005: rate limited rpc_index=1
+2026-10-17T21:15:01.441024Z  WARN fees{chain_id=1}: failed to get prices rpc.url=https://1rpc.io/eth error=server returned an error response: error code -32001: usage limit exceeded
+2026-10-17T21:15:02.000000Z  INFO starting broadcaster service chain_id=1
+2026-10-17T21:15:02.100000Z  INFO starting broadcaster service chain_id=137
+thread 'tokio-runtime-worker' panicked at crates/service/src/lib.rs:1:1:
