@@ -1,0 +1,30 @@
+# rbm next to a broadcaster that logs to journald. See docs/DEPLOYMENT.md (section 4).
+#
+#   docker build -t rbm:0.1.0 .
+#   cp config.example.toml rbm.toml     # edit: addresses, RPCs; storage.path = "/data/rbm.sqlite",
+#                                       # source.kind = "journald"
+#   docker compose -f deploy/docker-compose.example.yml up -d
+#
+# The image has no Docker CLI, so source.kind = "command" is not available inside it.
+services:
+  rbm:
+    image: rbm:0.1.0
+    container_name: rbm
+    restart: unless-stopped
+    network_mode: host # keeps the UI on the host's 127.0.0.1:8080
+    group_add: ["999"] # replace with the host's `getent group systemd-journal` gid
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    volumes:
+      - ./rbm.toml:/config/rbm.toml:ro
+      - rbm-data:/data
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    tmpfs:
+      - /tmp
+
+volumes:
+  rbm-data:

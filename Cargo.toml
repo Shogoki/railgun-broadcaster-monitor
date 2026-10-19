@@ -1,0 +1,59 @@
+[package]
+name = "railgun-broadcaster-monitor"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.91"
+license = "MIT"
+description = "Read-only, self-hosted dashboard for RAILGUN broadcaster operators"
+repository = "https://github.com/Shogoki/railgun-broadcaster-monitor"
+homepage = "https://github.com/Shogoki/railgun-broadcaster-monitor"
+readme = "README.md"
+authors = ["Shogoki"]
+keywords = ["railgun", "broadcaster", "monitoring", "dashboard", "waku"]
+categories = ["command-line-utilities", "web-programming::http-server"]
+# Not published to crates.io: the Waku client is a git dependency.
+publish = false
+
+[[bin]]
+name = "rbm"
+path = "src/main.rs"
+
+[features]
+default = ["waku"]
+waku = ["dep:waku-relay"]
+
+[dependencies]
+anyhow = "1"
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "query", "form"] }
+base64 = "0.22"
+bech32 = "0.11"
+clap = { version = "4", features = ["derive", "env"] }
+ed25519-dalek = "2"
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+hex = "0.4"
+maud = "0.27"
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "json"] }
+ruint = "1"
+rusqlite = { version = "0.39", features = ["bundled"] }
+rust-embed = "8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+time = { version = "0.3", features = ["parsing", "formatting", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal", "io-std", "io-util", "process", "net"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+toml = "0.9"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+waku-relay = { git = "https://github.com/triamazikamno/railgun-rust", rev = "b602c7d516a3f58bd83911a0a704a53fa0dc0c47", optional = true }
+
+[dev-dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "json"] }
+tempfile = "3"
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"

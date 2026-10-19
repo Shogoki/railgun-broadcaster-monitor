@@ -1,0 +1,3 @@
+2026-10-15T09:41:02.512930Z  INFO transact{chain_id=137}: parsed transact calldata fee_token=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359 fee_amount=87545 railgun_txid=1186304411572210374219848329021786364406157215402711207349046405330117612473 utxo_tree_in=1
+2026-10-15T09:41:02.513311Z DEBUG transact{chain_id=137}: broadcaster POI artifact cache root validation miss; falling back to proxy chain_type=0 chain_id=137 list_key="efc6ddb59c098a13fb2b618fdae94c1c3a807abc8fb1837c93620c9143ee9e88" fallback_reason="cache_unavailable"
+2026-10-15T09:41:03.207771Z  WARN failed to handle transact request error=Poi(ValidateList { list_key: 0xefc6ddb59c098a13fb2b618fdae94c1c3a807abc8fb1837c93620c9143ee9e88, source: InvalidSnarkProof })
