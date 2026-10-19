@@ -42,7 +42,7 @@ serde_json = "1"
 time = { version = "0.3", features = ["parsing", "formatting", "macros"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal", "io-std", "io-util", "process", "net"] }
 tokio-stream = { version = "0.1", features = ["sync"] }
-toml = "0.9"
+toml = "1.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 waku-relay = { git = "https://github.com/triamazikamno/railgun-rust", rev = "b602c7d516a3f58bd83911a0a704a53fa0dc0c47", optional = true }
